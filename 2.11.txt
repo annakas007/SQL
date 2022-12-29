@@ -1,0 +1,45 @@
+1. Посчитать сколько и каких экземпляров книг нужно заказать поставщикам, чтобы на складе
+ стало одинаковое количество экземпляров каждой книги, равное значению самого большего
+ количества экземпляров одной книги на складе. Вывести название книги, ее автора, текущее 
+ количество экземпляров на складе и количество заказываемых экземпляров книг. 
+ Последнему столбцу присвоить имя Заказ. В результат не включать книги, которые
+ заказывать не нужно.
+ 
+ SELECT title, author, amount, (SELECT MAX(amount) FROM book)-amount AS Заказ
+ FROM book
+ WHERE amount<>(SELECT MAX(amount) FROM book)
+
+2. Вывести информацию (автора, название и цену) о тех книгах, цены которых превышают 
+ минимальную цену книги на складе не более чем на 150 рублей в отсортированном по 
+ возрастанию цены виде.
+ 
+ select author, title, price
+ from book
+ where price <=  (select min(price) + 150
+                from book)
+ order by price; 
+
+3. Вывести фамилию, номер машины и нарушение только для тех водителей,
+которые на одной машине нарушили одно и то же правило   два и более раз.При этом учитывать все нарушения, 
+независимо от того оплачены они или нет. Информацию отсортировать в алфавитном порядке, сначала по
+ фамилии водителя, потом по номеру машины и, наконец, по нарушению.
+	 
+	 select name, number_plate, violation 
+ from
+ (select name, number_plate, violation, count(*)  
+     from fine
+     group by name, number_plate, violation 
+     having count(*) > 1
+     order by name, number_plate, violation) z 
+4. Для тех книг в таблице book , которые есть в таблице supply, не только увеличить
+ их количество в таблице book ( увеличить их количество на значение столбца
+ amountтаблицы supply), но и пересчитать их цену (для каждой книги найти сумму цен 
+ из таблиц book и supply и разделить на 2).
+
+
+  update book, supply
+  set book.amount = book.amount + supply.amount,
+      book.price = (book.price + supply.price)/2
+  where book.title = supply.title and book.author = supply.author;
+ 
+  select * from book
